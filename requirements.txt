@@ -1,0 +1,7 @@
+pyrogram
+tgcrypto
+aiohttp
+qbittorrent-api
+hachoir
+Pillow
+ffmpeg-python
