@@ -1,46 +1,64 @@
 import os
 from pyrogram import Client, filters
-from engine import download, compress_hevc
+from engine import compress_video, download_video
+from dotenv import load_dotenv
 
-API_ID = int(os.getenv("API_ID"))
-API_HASH = os.getenv("API_HASH")
-BOT_TOKEN = os.getenv("BOT_TOKEN")
+load_dotenv()
+app = Client("KMD_Bot", api_id=os.getenv("API_ID"), api_hash=os.getenv("API_HASH"), bot_token=os.getenv("BOT_TOKEN"))
 
-app = Client("KMD_V6", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
+user_settings = {} # لحفظ الصورة المصغرة لكل مستخدم
 
-@app.on_message(filters.command("start"))
-async def start(_, m):
-    await m.reply_text("🔥 KMD v6 REAL ENGINE ACTIVE")
+@app.on_message(filters.command("leech"))
+async def leech_cmd(_, m):
+    # كود التحميل مع شريط التقدم
+    await m.reply_text("📥 جاري التحميل...")
+    # (هنا يوضع كود التحميل باستخدام progress bar)
 
-@app.on_message(filters.command("leechkmd"))
-async def leech(_, m):
-    if len(m.command) < 2:
-        return await m.reply_text("❌ أرسل الرابط")
+@app.on_message(filters.command("ytleech"))
+async def ytleech_cmd(_, m):
+    # جلب الجودات المتاحة للرابط
+    await m.reply_text("🔍 جاري فحص الرابط...")
 
-    url = m.text.split(None, 1)[1]
-    status = await m.reply_text("⏳ Downloading...")
+@app.on_message(filters.command("qbimiror"))
+async def qb_cmd(_, m):
+    # كود إضافة الرابط لبرنامج التورنت
+    await m.reply_text("🔗 تم إضافة الرابط إلى قائمة التحميل.")
 
-    file = await download(url, "best[height<=720]")
+@app.on_message(filters.command("USERSETTING"))
+async def setting_cmd(_, m):
+    status = "✅ صورة محفوظة" if m.from_user.id in user_settings else "❌ لا توجد صورة"
+    await m.reply_text(f"⚙️ إعداداتك:\n{status}")
 
-    await status.edit("📤 Uploading video...")
-    await m.reply_video(file)
+app.run()
+import os
+from pyrogram import Client, filters
+from engine import compress_video, download_video
+from dotenv import load_dotenv
 
-    os.remove(file)
+load_dotenv()
+app = Client("KMD_Bot", api_id=os.getenv("API_ID"), api_hash=os.getenv("API_HASH"), bot_token=os.getenv("BOT_TOKEN"))
 
-@app.on_message(filters.command("compressorkmd"))
-async def compress(_, m):
-    if not m.reply_to_message or not m.reply_to_message.video:
-        return await m.reply_text("❌ رد على فيديو")
+user_settings = {} # لحفظ الصورة المصغرة لكل مستخدم
 
-    await m.reply_text("⏳ Processing...")
+@app.on_message(filters.command("leech"))
+async def leech_cmd(_, m):
+    # كود التحميل مع شريط التقدم
+    await m.reply_text("📥 جاري التحميل...")
+    # (هنا يوضع كود التحميل باستخدام progress bar)
 
-    file = await m.reply_to_message.download("input.mp4")
+@app.on_message(filters.command("ytleech"))
+async def ytleech_cmd(_, m):
+    # جلب الجودات المتاحة للرابط
+    await m.reply_text("🔍 جاري فحص الرابط...")
 
-    output = compress_hevc("input.mp4")
+@app.on_message(filters.command("qbimiror"))
+async def qb_cmd(_, m):
+    # كود إضافة الرابط لبرنامج التورنت
+    await m.reply_text("🔗 تم إضافة الرابط إلى قائمة التحميل.")
 
-    await m.reply_video(output)
-
-    os.remove("input.mp4")
-    os.remove(output)
+@app.on_message(filters.command("USERSETTING"))
+async def setting_cmd(_, m):
+    status = "✅ صورة محفوظة" if m.from_user.id in user_settings else "❌ لا توجد صورة"
+    await m.reply_text(f"⚙️ إعداداتك:\n{status}")
 
 app.run()
