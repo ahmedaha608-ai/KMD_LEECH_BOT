@@ -1,36 +1,20 @@
 import os
-import asyncio
+import ffmpeg
 import yt_dlp
-from concurrent.futures import ThreadPoolExecutor
+from qbittorrentapi import Client
 
-executor = ThreadPoolExecutor(max_workers=3)
+# إعداد التورنت
+qb = Client(host='http://127.0.0.1', port=8080, username='admin', password='password')
 
-def _download(url, fmt):
-    ydl_opts = {
-        "format": fmt,
-        "outtmpl": "input.mp4",
-        "quiet": True,
-        "noplaylist": True
-    }
+def compress_video(input_file, resolution="720"):
+    output_file = f"compressed_{resolution}.mp4"
+    scale_map = {"360": "640:-2", "480": "854:-2", "720": "1280:-2", "1080": "1920:-2"}
+    stream = ffmpeg.input(input_file).output(output_file, vcodec='libx265', crf=28, vf=f"scale={scale_map[resolution]}", acodec='aac')
+    ffmpeg.run(stream, overwrite_output=True)
+    return output_file
 
+def download_video(url):
+    ydl_opts = {'format': 'best', 'outtmpl': 'input.mp4'}
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         ydl.download([url])
-
     return "input.mp4"
-
-async def download(url, fmt="best"):
-    loop = asyncio.get_event_loop()
-    return await loop.run_in_executor(executor, _download, url, fmt)
-
-def compress_hevc(input_file, output_file="output.mp4"):
-    cmd = f"""
-    ffmpeg -y -i {input_file}
-    -c:v libx265
-    -preset veryfast
-    -crf 34
-    -vf "scale='min(1280,iw)':-2"
-    -c:a aac -b:a 96k
-    {output_file}
-    """
-    os.system(cmd)
-    return output_file
