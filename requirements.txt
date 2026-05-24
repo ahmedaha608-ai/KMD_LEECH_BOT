@@ -3,5 +3,5 @@ tgcrypto
 aiohttp
 yt-dlp
 python-dotenv
-requests
 ffmpeg-python
+qbittorrent-api
